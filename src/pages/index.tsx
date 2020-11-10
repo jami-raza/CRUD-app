@@ -1,18 +1,30 @@
-import React,{useState} from "react"
+import React,{useState,useEffect} from "react"
 import {Formik} from 'formik'
 
-interface data {
-  message:string,
-}
+
+
 
 export default function Home() {
-  const [mydata, setData] = useState("");
-
-  return (
   
-       <div>
-     <h1>Anywhere in your app!</h1>
-     <Formik
+  interface mydata {
+    ref: Object
+    data: {message:string}
+    ts: number
+  }
+  const [mydata, setData] = useState<null | mydata[]>();
+  const [fetchData, setFetchData] = useState(false)
+  useEffect(()=>{
+    ;(async () => {
+      await fetch("/.netlify/functions/read")
+        .then(res => res.json())
+        .then(data => {
+          setData(data)
+        })
+    })()
+    
+  },[fetchData])
+  const createBody = (
+    <Formik
        initialValues={{ message:'' }}
        validate={values => {
         const errors = {};
@@ -27,14 +39,13 @@ export default function Home() {
          console.log(values);
          fetch(`/.netlify/functions/create`,{
            method: 'post',
-           body: JSON.stringify(values)
+           body: JSON.stringify(values),
          })
-         .then(response => response.json())
-         .then(data => {
-           setData(data);
+         
+           setFetchData(true)
            
-           console.log('Data' + JSON.stringify(data))
-         })
+           
+         
        }}
      >
        {({
@@ -63,7 +74,37 @@ export default function Home() {
          </form>
        )}
      </Formik>
-       <div>{mydata.mess}</div>
+  )
+  return (
+      
+       <div>
+     <h1>Anywhere in your app!</h1>
+     <div>
+       {createBody}
+       </div>
+     
+       
+         {mydata === null || mydata === undefined ? (
+           <div>loading</div>
+
+         ):
+         mydata.length >= 1 ?
+         (
+         <div>
+           {mydata.map((name,i)=>(
+           
+             <div key={i}>
+               {name.data.message}
+             </div>
+           
+         ))}
+         </div>
+         ):(
+           <div>you have no contacts</div>
+         )
+         
+       
+      }
   </div>
   )
 }
