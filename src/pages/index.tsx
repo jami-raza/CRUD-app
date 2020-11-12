@@ -5,7 +5,8 @@ import CircularProgress from "@material-ui/core/CircularProgress"
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import Backdrop from '@material-ui/core/Backdrop';
-import Fade from '@material-ui/core/Fade';
+import Box from '@material-ui/core/Box';
+import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     modal: {
@@ -19,6 +20,29 @@ const useStyles = makeStyles((theme: Theme) =>
       boxShadow: theme.shadows[5],
       padding: theme.spacing(2, 4, 3),
     },
+    body:{
+      maxWidth: '500px',
+      margin: 'auto'
+    },
+    title:{
+      fontFamily:'Arial',
+      letterSpacing:'25px',
+      color:'#0913A6',
+      fontSize:'48px',
+      textAlign:'center',
+      fontWeight:'bolder',
+    },
+    subtilte:{
+      textAlign:'center',
+      fontFamily:'Arial',
+      wordSpacing:'14px',
+      marginTop:'-35px',
+      padding:'0 30px 50px 15px',
+      color:'#AB0416',
+      fontWeight:'bold',
+      
+    },
+    
   }),
 );
 export default function Home(){
@@ -28,7 +52,8 @@ export default function Home(){
       ts: number
       data: {
         detail: string,
-        
+        name: string,
+        email:string,
       }
     }
     const [mydata, setData] = useState<null | mydata[]>();
@@ -36,7 +61,7 @@ export default function Home(){
     const [updatingData, setUpdatingData] = useState(undefined)
     const [updateData, setUpdateData] = useState(false)
     const [openCreate, setOpenCreate] = useState(false);
-
+    const [loading, setLoading] = useState(false)
     const handleOpen = () => {
       setOpenCreate(true);
     };
@@ -82,8 +107,9 @@ export default function Home(){
 
     const createBody = (
       <Formik
-      initialValues={{detail:""}}
+      initialValues={{detail:"",name:"",email:""}}
       onSubmit={(value,action)=>{
+        
         fetch(`/.netlify/functions/create`,{
           method:'post',
           body: JSON.stringify(value),
@@ -91,7 +117,9 @@ export default function Home(){
         setFetchdata(true)
         action.resetForm({
           values:{
-            detail:""
+            detail:"",
+            name:"",
+            email:""
           },
         })
         setFetchdata(false)
@@ -102,16 +130,37 @@ export default function Home(){
       <Form
       onSubmit={formik.handleSubmit}
       >
+        
         <Field
         as={TextField}
+        id="name"
+        label="Your Name"
+        name="name"
+        type="text"
+        required
+        />
+        <Field
+        as={TextField}
+        id="email"
+        label="Your Email"
+        name="email"
+        type="email"
+        required
+        />
+        <br/>
+        <Field
+        as={TextareaAutosize}
+        rowsMin={10}
         id="detail"
         label="detail"
         name="detail"
         type="text"
-        required
+        placeholder="Message"
+        style={{width:"500px",marginTop:"10px"}}
         />
+        <br/>
         <button type="submit">create</button>
-        <button onClick={handleClose}>close</button>
+        
       </Form>
     )}</Formik>
     
@@ -120,6 +169,10 @@ export default function Home(){
       <Formik
       initialValues={{detail:updatingData !== undefined ? 
       updatingData.data.detail: "",
+      name:updatingData !== undefined ? 
+      updatingData.data.name: "",
+      email:updatingData !== undefined ? 
+      updatingData.data.email: "",
       }}
       onSubmit={(value,action)=>{
         fetch(`/.netlify/functions/update`,{
@@ -132,7 +185,9 @@ export default function Home(){
         setFetchdata(true)
         action.resetForm({
           values:{
-            detail:""
+            detail:"",
+            name:"",
+            email:""
           },
         })
         setFetchdata(false)
@@ -145,41 +200,44 @@ export default function Home(){
       >
         <Field
         as={TextField}
+        id="name"
+        label="name"
+        name="name"
+        type="text"
+        
+        />
+        <Field
+        as={TextField}
+        id="email"
+        label="Update email"
+        name="email"
+        type="text"
+        
+        />
+        <br/>
+        <Field
+        as={TextareaAutosize}
         id="detail"
         label="detail"
         name="detail"
         type="text"
         
         />
+        
         <button type="submit">update</button>
         <button type="button" onClick={handleCloseUpdate}>close</button>
       </Form>
     )}</Formik>
       )
       return(
-        <div>
-          <button type="button" onClick={handleOpen}>
-            create message
-          </button>
+        <div className={classes.body}>
+          <h2 className={classes.title}>CRUD</h2>
+          <p className={classes.subtilte}>Create Read Update Delete</p>
+
+          <Box m={1} p={1}>
+          {createBody}
+          </Box>
           
-          <Modal
-        aria-labelledby="transition-modal-title"
-        aria-describedby="transition-modal-description"
-        className={classes.modal}
-        open={openCreate}
-        onClose={handleClose}
-        closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500,
-        }}
-      >
-      <div className={classes.paper}>
-        {createBody}
-        
-      </div>
-        
-        </Modal>
         <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
@@ -198,19 +256,32 @@ export default function Home(){
       </div>
         
         </Modal>
-        
+       
         {mydata === null || mydata === undefined ? (
     <div>
       <CircularProgress/>
     </div>
   ):mydata.length >= 1 ? (
+    
     <div>
       <div>
+      
         {mydata.map((ind,i)=>(
+           
+          
+          
+        
           <div key={i}>
             <p>
+           
               {ind.data.detail}
-            </p>
+              </p>
+              <p>
+              {ind.data.name}
+              </p>
+              <p>
+                {ind.data.email}
+              </p>
             <button onClick={()=>{
             handleOpenUpdate()
             updatemessage(ind.ref["@ref"].id)
@@ -219,6 +290,7 @@ export default function Home(){
               deletemessage(ind)
             }}>Delete</button>
           </div>
+          
         ))}
       </div>
     </div>

@@ -11,7 +11,7 @@ exports.handler = async event => {
         const obj = JSON.parse(event.body)
         let result = await client.query(
           q.Create(q.Collection("messages"),
-           { data: { detail: obj.detail} })
+           { data: { detail: obj.detail, name: obj.name, email: obj.email} })
         )
         console.log("Entry Created and Inserted in Container: " + result.ref.id)
         
