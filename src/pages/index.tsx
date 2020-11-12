@@ -6,6 +6,7 @@ import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import Backdrop from '@material-ui/core/Backdrop';
 import Box from '@material-ui/core/Box';
+import Button from '@material-ui/core/Button';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -60,15 +61,7 @@ export default function Home(){
     const [fetchdata, setFetchdata] = useState(false);
     const [updatingData, setUpdatingData] = useState(undefined)
     const [updateData, setUpdateData] = useState(false)
-    const [openCreate, setOpenCreate] = useState(false);
-    const [loading, setLoading] = useState(false)
-    const handleOpen = () => {
-      setOpenCreate(true);
-    };
-  
-    const handleClose = () => {
-      setOpenCreate(false);
-    };
+
     const handleOpenUpdate = () => {
       setUpdateData(true);
     };
@@ -123,7 +116,7 @@ export default function Home(){
           },
         })
         setFetchdata(false)
-        handleClose()
+        
       }}
       
     >{formik => (
@@ -132,6 +125,8 @@ export default function Home(){
       >
         
         <Field
+        style={{padding:"0 10px 5px 0"}}
+        variant="outlined"
         as={TextField}
         id="name"
         label="Your Name"
@@ -140,12 +135,15 @@ export default function Home(){
         required
         />
         <Field
+        style={{padding:"0 10px 5px 0"}}
+        variant="outlined"
         as={TextField}
         id="email"
         label="Your Email"
         name="email"
         type="email"
         required
+        
         />
         <br/>
         <Field
@@ -159,7 +157,7 @@ export default function Home(){
         style={{width:"500px",marginTop:"10px"}}
         />
         <br/>
-        <button type="submit">create</button>
+        <Button type="submit" variant="contained" color="primary">create message</Button>
         
       </Form>
     )}</Formik>
@@ -204,7 +202,8 @@ export default function Home(){
         label="name"
         name="name"
         type="text"
-        
+        style={{padding:"0 10px 5px 0"}}
+        variant="outlined"
         />
         <Field
         as={TextField}
@@ -212,20 +211,23 @@ export default function Home(){
         label="Update email"
         name="email"
         type="text"
-        
+        style={{padding:"0 10px 5px 0"}}
+        variant="outlined"
         />
         <br/>
         <Field
         as={TextareaAutosize}
+        rowsMin={10}
+        rowsMax={30}
         id="detail"
         label="detail"
         name="detail"
         type="text"
-        
+        style={{width:"500px",marginTop:"10px"}}
         />
-        
-        <button type="submit">update</button>
-        <button type="button" onClick={handleCloseUpdate}>close</button>
+        <br/>
+        <Button type="submit" variant="contained" color="primary">update</Button>
+        <Button type="button" variant="contained" onClick={handleCloseUpdate}>close</Button>
       </Form>
     )}</Formik>
       )
@@ -263,39 +265,43 @@ export default function Home(){
     </div>
   ):mydata.length >= 1 ? (
     
-    <div>
-      <div>
+    <Box >
+      <Box m={1} p={1} >
       
         {mydata.map((ind,i)=>(
            
           
           
         
-          <div key={i}>
-            <p>
-           
-              {ind.data.detail}
-              </p>
-              <p>
+          <Box  key={i} m={1} p={1} style={{boxSizing:"content-box",border:"5px ridge navy",backgroundColor:"floralwhite"}}>
+           <Box p={1}  >
+            <p style={{paddingRight:"50%px"}}>
               {ind.data.name}
               </p>
               <p>
                 {ind.data.email}
               </p>
-            <button onClick={()=>{
+              </Box>
+              <Box p={1}>
+            <p>
+              {ind.data.detail}
+              </p>
+              </Box>
+
+            <Button color="primary" onClick={()=>{
             handleOpenUpdate()
             updatemessage(ind.ref["@ref"].id)
-            }}>update</button>
-            <button onClick={()=>{
+            }}>update</Button>
+            <Button color="secondary" onClick={()=>{
               deletemessage(ind)
-            }}>Delete</button>
-          </div>
+            }}>Delete</Button>
+          </Box>
           
         ))}
-      </div>
-    </div>
+      </Box>
+    </Box>
   ):(
-    <div>No data</div>
+    <div style={{padding:"10px 10px 10px 10px "}}>No Records</div>
   )}
         </div>
       )
